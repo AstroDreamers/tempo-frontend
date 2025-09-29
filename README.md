@@ -1,3 +1,23 @@
+
+
+
+# How to install and run
+
+1. Install dependencies:
+	```sh
+	npm install
+	```
+
+2. Start the app:
+	```sh
+	npm start
+	```
+
+3. Open your browser at [http://localhost:3000](http://localhost:3000)
+
+If needed, edit the `.env` file for backend/API keys.
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
