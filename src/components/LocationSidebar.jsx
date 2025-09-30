@@ -49,7 +49,7 @@ const LocationSidebar = ({ location, onClose }) => {
   {/* Header */}
   <div className="w-full rounded-t-2xl bg-blue-600 px-6 py-4 flex items-center justify-between sticky top-0 z-20" style={{borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem'}}>
         <div className="text-white text-lg font-bold truncate" title={location.locality || 'Unknown'}>
-          {location.locality || "Unknown"} - US
+          {location.locality || "Unknown"}
         </div>
         <button
           onClick={onClose}
@@ -78,7 +78,9 @@ const LocationSidebar = ({ location, onClose }) => {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={sensorTrends[sensor.id].map(m => ({
                         value: m.value,
-                        time: m.period?.datetimeFrom?.utc?.slice(11, 16) || '',
+                        time: m.period?.datetimeFrom?.utc
+                          ? new Date(m.period.datetimeFrom.utc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                          : '',
                         units: m.parameter?.units,
                         label: m.parameter?.displayName || m.parameter?.name
                       }))} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
