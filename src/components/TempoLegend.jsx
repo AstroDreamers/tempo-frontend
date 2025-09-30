@@ -25,7 +25,7 @@ const TempoLegend = () => {
         <span className="w-2 h-6 bg-blue-500 rounded mr-3"></span>
         <div>
           <strong className="text-blue-700 text-base">TEMPO NO₂ (molecules/cm²)</strong>
-          <div className="text-s text-gray-500 font-normal leading-tight">Only in North America</div>
+          <div className="text-s text-gray-500 font-normal leading-tight">Measured in North America</div>
         </div>
       </div>
       <div className="w-full">

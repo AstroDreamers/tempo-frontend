@@ -3,8 +3,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchLocations } from "./api/locations";
 
+
 import MapView from "./components/MapView";
 import LocationSidebar from "./components/LocationSidebar";
+import LocationSearchBar from "./components/LocationSearchBar";
 
 
 
@@ -29,15 +31,26 @@ function App() {
 
   const handleZoomToLocation = (loc) => {
     if (mapRef.current && loc?.coordinates) {
-      mapRef.current.setView([
+      // Use a smooth pan and zoom animation
+      mapRef.current.flyTo([
         loc.coordinates.latitude,
         loc.coordinates.longitude
-      ], 12, { animate: true });
+      ], 12, { animate: true, duration: 1.5 });
     }
   };
 
   return (
     <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
+      {/* Search bar in top center */}
+      <div className="absolute z-[1200] top-4 left-1/2 -translate-x-1/2 w-full flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          <LocationSearchBar
+            locations={locations}
+            onSearch={handleZoomToLocation}
+            onSelect={setSelectedLocation}
+          />
+        </div>
+      </div>
       <MapView
         locations={locations}
         onMarkerClick={handleMarkerClick}

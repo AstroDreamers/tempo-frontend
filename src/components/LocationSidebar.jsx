@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getSensorsByLocationId, getHourlyMeasurementBySensorId } from "../api/sensors";
+import { askWithData } from "../api/ai";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
@@ -9,6 +10,9 @@ const LocationSidebar = ({ location, onClose }) => {
   const [sensorTrends, setSensorTrends] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [aiNotes, setAiNotes] = useState({}); // sensorId -> response
+  const [aiLoading, setAiLoading] = useState({}); // sensorId -> loading
+  const [aiStreaming, setAiStreaming] = useState({}); // sensorId -> streaming text
 
   useEffect(() => {
     if (!location?.id) return;
@@ -67,9 +71,65 @@ const LocationSidebar = ({ location, onClose }) => {
         <ul className="space-y-2">
           {sensors.map((sensor, idx) => (
             <li key={sensor.id || idx} className="border-b pb-2">
-              <div className="font-bold text-blue-700 text-lg mb-1">
-                {sensor.parameter?.displayName || sensor.parameter?.name || 'Unknown Parameter'}
+              <div className="font-bold text-blue-700 text-lg mb-1 flex items-center justify-between">
+                <span>{sensor.parameter?.displayName || sensor.parameter?.name || 'Unknown Parameter'}</span>
+                <button
+                  className="ml-2 px-3 py-1 text-xs rounded text-yellow-900 font-semibold border border-transparent transition flex items-center gap-1 bg-transparent hover:bg-yellow-100 hover:border-yellow-300"
+                  onClick={async () => {
+                    setAiLoading(l => ({ ...l, [sensor.id]: true }));
+                    setAiNotes(n => ({ ...n, [sensor.id]: null }));
+                    setAiStreaming(s => ({ ...s, [sensor.id]: "" }));
+                    // Prepare request body
+                    const trend = sensorTrends[sensor.id] || [];
+                    const reqBody = {
+                      locationName: location.locality || "Unknown",
+                      latitude: location.coordinates?.latitude,
+                      longitude: location.coordinates?.longitude,
+                      parameterName: sensor.parameter?.displayName || sensor.parameter?.name || 'Unknown Parameter',
+                      units: sensor.parameter?.units || '',
+                      startDate: trend.length > 0 ? trend[0].period?.datetimeFrom?.utc?.slice(0,10) : '',
+                      endDate: trend.length > 0 ? trend[trend.length-1].period?.datetimeFrom?.utc?.slice(0,10) : '',
+                      jsonData: trend.map(m => ({
+                        timestamp: m.period?.datetimeFrom?.utc,
+                        value: m.value
+                      }))
+                    };
+                    try {
+                      const data = await askWithData(reqBody);
+                      // Typing effect
+                      const text = data.response || "No response.";
+                      let i = 0;
+                      const step = 3; // Show 10 characters per frame
+                      function streamText() {
+                        setAiStreaming(s => ({ ...s, [sensor.id]: text.slice(0, i) }));
+                        if (i < text.length) {
+                          i += step;
+                          setTimeout(streamText, 0.5);
+                        } else {
+                          setAiNotes(n => ({ ...n, [sensor.id]: text }));
+                        }
+                      }
+                      streamText();
+                    } catch (e) {
+                      setAiNotes(n => ({ ...n, [sensor.id]: "AI request failed." }));
+                    }
+                    setAiLoading(l => ({ ...l, [sensor.id]: false }));
+                  }}
+                  disabled={aiLoading[sensor.id]}
+                  title="Get AI interpretation of this chart"
+                >
+                  {aiLoading[sensor.id] ? "Asking..." : <><span role="img" aria-label="magic" style={{fontSize: '1.1em'}}>🪄</span> Ask AI</>}
+                </button>
               </div>
+              {/* Show AI note if available */}
+              {(aiStreaming[sensor.id] || aiNotes[sensor.id]) && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded p-2 my-2 text-sm text-yellow-900 shadow-sm">
+                  <strong>AI Note:</strong>
+                    <div className="whitespace-pre-line mt-1" style={{ fontFamily: 'Caveat, Comic Sans MS, cursive', fontSize: '1em', lineHeight: 1.7, color: '#111' }}>
+                      {aiStreaming[sensor.id] ? aiStreaming[sensor.id] : aiNotes[sensor.id]}
+                    </div>
+                </div>
+              )}
               {/* Show hourly trend for this sensor if available */}
               {sensorTrends[sensor.id] && sensorTrends[sensor.id].length > 0 ? (
                 <div className="text-sm text-gray-700">

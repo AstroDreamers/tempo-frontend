@@ -20,16 +20,10 @@ const TempoNO2Popup = ({ showTempo }) => {
     },
   });
   function formatNO2(val) {
-    if (typeof val === 'number') {
-      if (Math.abs(val) >= 1e6) {
-        return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
-      }
-      return val.toLocaleString(undefined, { maximumFractionDigits: 4 });
-    }
-    if (!isNaN(Number(val))) {
+    if (typeof val === 'number' || (!isNaN(Number(val)) && val !== null && val !== undefined)) {
       const num = Number(val);
-      if (Math.abs(num) >= 1e6) {
-        return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+      if (Math.abs(num) >= 1e6 || Math.abs(num) < 1e-2) {
+        return num.toExponential(2);
       }
       return num.toLocaleString(undefined, { maximumFractionDigits: 4 });
     }
