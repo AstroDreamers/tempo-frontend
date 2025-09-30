@@ -45,9 +45,9 @@ const LocationSidebar = ({ location, onClose }) => {
 
   if (!location) return null;
   return (
-  <div className="fixed top-10 right-10 w-[360px] max-w-[90vw] min-h-[200px] max-h-[80vh] bg-white shadow-2xl rounded-2xl z-[1200] overflow-y-auto flex flex-col transition-all duration-300">
-      {/* Header */}
-      <div className="w-full rounded-t-2xl bg-blue-600 px-6 py-4 flex items-center justify-between">
+  <div className="fixed top-10 right-10 w-[360px] max-w-[90vw] min-h-[200px] bg-white shadow-2xl rounded-2xl z-[1200] flex flex-col transition-all duration-300">
+  {/* Header */}
+  <div className="w-full rounded-t-2xl bg-blue-600 px-6 py-4 flex items-center justify-between sticky top-0 z-20" style={{borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem'}}>
         <div className="text-white text-lg font-bold truncate" title={location.locality || 'Unknown'}>
           {location.locality || "Unknown"} - US
         </div>
@@ -60,7 +60,7 @@ const LocationSidebar = ({ location, onClose }) => {
         </button>
       </div>
       {/* Content */}
-      <div className="px-6 py-5 text-base">
+  <div className="px-6 py-5 text-base overflow-y-auto max-h-[70vh]">
         {loading && <div className="text-gray-500">Loading sensors...</div>}
         {error && <div className="text-red-500">{error}</div>}
         {!loading && !error && sensors.length === 0 && <div className="text-gray-500">No sensors found.</div>}
