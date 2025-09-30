@@ -1,55 +1,17 @@
 
-// import React from "react";
-// import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-// import MarkerClusterGroup from "react-leaflet-markercluster";
-
-
-// const MapView = ({ locations, onMarkerClick }) => (
-//   <MapContainer center={[37.8, -96]} zoom={4} style={{ height: "100%", width: "100%" }}>
-//     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-//     <MarkerClusterGroup>
-//       {locations.map((loc) =>
-//         loc.coordinates ? (
-//           <Marker
-//             key={loc.id || `${loc.coordinates.latitude},${loc.coordinates.longitude}`}
-//             position={[loc.coordinates.latitude, loc.coordinates.longitude]}
-//             eventHandlers={{
-//               click: () => onMarkerClick(loc),
-//             }}
-//           >
-//             <Popup>
-//               <div>
-//                 <strong>Location:</strong> {loc.locality || "Unknown"}
-//                 <br />
-//                 <strong>Lat:</strong> {loc.coordinates.latitude}
-//                 <br />
-//                 <strong>Lon:</strong> {loc.coordinates.longitude}
-//               </div>
-//             </Popup>
-//           </Marker>
-//         ) : null
-//       )}
-//     </MarkerClusterGroup>
-//   </MapContainer>
-// );
-
-// export default MapView;
 
 
 
 
 import React, { useState, useRef, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
-
 import TempoImageLayer from "./TempoImageLayer";
 import TempoLegend from "./TempoLegend";
 import TempoNO2Popup from "./TempoNO2Popup";
+import PropTypes from "prop-types";
 
-
-const MapView = ({ locations, onMarkerClick }) => {
-
+const MapView = ({ locations, onMarkerClick, mapRef }) => {
   const [showTempo, setShowTempo] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -68,6 +30,15 @@ const MapView = ({ locations, onMarkerClick }) => {
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen]);
+
+  // Attach mapRef to the Leaflet map instance
+  function SetMapRef() {
+    const map = useMap();
+    useEffect(() => {
+      if (mapRef) mapRef.current = map;
+    }, [map]);
+    return null;
+  }
 
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
@@ -103,6 +74,7 @@ const MapView = ({ locations, onMarkerClick }) => {
           )}
         </div>
       </div>
+
       {/* Tempo Legend in bottom right */}
       {showTempo && (
         <div className="absolute bottom-4 right-4 z-[1100]">
@@ -110,12 +82,15 @@ const MapView = ({ locations, onMarkerClick }) => {
         </div>
       )}
       <MapContainer center={[37.8, -96]} zoom={4} style={{ height: "100%", width: "100%" }}>
+        <SetMapRef />
         <TempoNO2Popup showTempo={showTempo} />
         {/* base map */}
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* TEMPO overlay (semi-transparent) */}
-        <TempoImageLayer visible={showTempo} opacity={0.6} />
+        {showTempo && (
+          <TempoImageLayer visible={showTempo} opacity={0.6} />
+        )}
 
         {/* your OpenAQ markers */}
         <MarkerClusterGroup>
@@ -123,7 +98,7 @@ const MapView = ({ locations, onMarkerClick }) => {
             loc.coordinates ? (
               <Marker
                 key={loc.id || `${loc.coordinates.latitude},${loc.coordinates.longitude}`}
-                position={[loc.coordinates.latitude, loc.coordinates.longitude]}
+                position={[loc.coordinates.latitude,loc.coordinates.longitude]}
                 eventHandlers={{ click: () => onMarkerClick(loc) }}
               >
                 <Popup>
@@ -140,9 +115,14 @@ const MapView = ({ locations, onMarkerClick }) => {
           )}
         </MarkerClusterGroup>
       </MapContainer>
-  {/* Legend is now beside the options button above */}
     </div>
   );
+};
+
+MapView.propTypes = {
+  locations: PropTypes.array.isRequired,
+  onMarkerClick: PropTypes.func.isRequired,
+  mapRef: PropTypes.object
 };
 
 export default MapView;
