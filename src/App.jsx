@@ -31,10 +31,11 @@ function App() {
 
   const handleZoomToLocation = (loc) => {
     if (mapRef.current && loc?.coordinates) {
-      mapRef.current.setView([
+      // Use a smooth pan and zoom animation
+      mapRef.current.flyTo([
         loc.coordinates.latitude,
         loc.coordinates.longitude
-      ], 12, { animate: true });
+      ], 12, { animate: true, duration: 1.5 });
     }
   };
 

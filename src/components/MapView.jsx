@@ -31,11 +31,19 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen]);
 
-  // Attach mapRef to the Leaflet map instance
+  // Attach mapRef to the Leaflet map instance and dispatch custom event on map click
   function SetMapRef() {
     const map = useMap();
     useEffect(() => {
       if (mapRef) mapRef.current = map;
+      // Dispatch custom event to close location search suggestions
+      const handleMapClick = () => {
+        window.dispatchEvent(new Event('tempo-map-click'));
+      };
+      map.on('click', handleMapClick);
+      return () => {
+        map.off('click', handleMapClick);
+      };
     }, [map]);
     return null;
   }

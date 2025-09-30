@@ -23,6 +23,17 @@ const LocationSearchBar = ({ locations, onSelect, onSearch }) => {
     setShowSuggestions(true);
   }, [query, locations]);
 
+  // Listen for custom map click event to close suggestions
+  useEffect(() => {
+    function handleMapClick() {
+      setShowSuggestions(false);
+    }
+    window.addEventListener('tempo-map-click', handleMapClick);
+    return () => {
+      window.removeEventListener('tempo-map-click', handleMapClick);
+    };
+  }, []);
+
   const handleSelect = (loc) => {
     setQuery(loc.locality);
     setShowSuggestions(false);
