@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8080";
-
+const API_BASE = process.env.REACT_APP_API_BASE;
 export async function getSensorsByLocationId(locationId) {
   const res = await axios.get(`${API_BASE}/oa/locations/${locationId}/sensors`);
   return res.data && res.data.results ? res.data.results : [];
