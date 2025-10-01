@@ -29,11 +29,11 @@ const ChatbotWindow = () => {
   const ZOOMED_IN = {
     width: 520,
     height: 480,
-    headerFont: "1.35em",
+    headerFont: "1.15em", // keep header font size the same
     headerPad: "18px 32px",
-    msgFont: "1.18em",
+    msgFont: "1.05em",    // keep message font size the same
     msgPad: "28px 24px 16px 24px",
-    inputFont: "1.12em",
+    inputFont: "1em",     // keep input font size the same
     inputPad: "18px 32px",
     inputBtnPad: "14px 32px",
     inputRadius: 16,
@@ -43,6 +43,19 @@ const ChatbotWindow = () => {
   };
   const [zoomed, setZoomed] = useState(false);
   const styleVars = zoomed ? ZOOMED_IN : ZOOMED_OUT;
+
+  // Reset position when zoomed in
+  const handleZoom = () => {
+    if (!zoomed) {
+      pos.current.x = 80;
+      pos.current.y = 80;
+      if (windowRef.current) {
+        windowRef.current.style.left = `${pos.current.x}px`;
+        windowRef.current.style.top = `${pos.current.y}px`;
+      }
+    }
+    setZoomed(z => !z);
+  };
 
   // Drag logic
   const onMouseDown = (e) => {
@@ -133,32 +146,40 @@ const ChatbotWindow = () => {
           alignItems: "center",
           justifyContent: "center"
         }}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          pos.current.x = 40;
+          pos.current.y = window.innerHeight - 320 - 80;
+          setZoomed(false);
+          setOpen(true);
+        }}
         title="Open Chatbot"
       >
         <span role="img" aria-label="chat" style={{ fontSize: 32 }}>💬</span>
       </div>
-      {/* Chat window */}
-      {open && (
-        <div
-          ref={windowRef}
-          style={{
-            position: "fixed",
-            left: pos.current.x,
-            top: pos.current.y,
-            zIndex: 2100,
-            width: styleVars.width,
-            minHeight: styleVars.height,
-            background: "rgba(248,250,252,0.75)",
-            borderRadius: styleVars.headerRadius,
-            boxShadow: "0 4px 24px 0 rgba(37,99,235,0.10)",
-            border: "1px solid #e5e7eb",
-            display: "flex",
-            flexDirection: "column",
-            cursor: "move"
-          }}
-          onMouseDown={onMouseDown}
-        >
+      {/* Chat window with smooth transition */}
+      <div
+        ref={windowRef}
+        style={{
+          position: "fixed",
+          left: pos.current.x,
+          top: pos.current.y,
+          zIndex: 2100,
+          width: styleVars.width,
+          minHeight: styleVars.height,
+          background: "rgba(248,250,252,0.75)",
+          borderRadius: styleVars.headerRadius,
+          boxShadow: "0 4px 24px 0 rgba(37,99,235,0.10)",
+          border: "1px solid #e5e7eb",
+          display: "flex",
+          flexDirection: "column",
+          cursor: "move",
+          opacity: open ? 1 : 0,
+          transform: open ? "scale(1)" : "scale(0.95)",
+          pointerEvents: open ? "auto" : "none",
+          transition: "opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1)"
+        }}
+        onMouseDown={onMouseDown}
+      >
           {/* Header */}
           <div
             style={{
@@ -180,7 +201,7 @@ const ChatbotWindow = () => {
             TEMPO Chatbot
             <button
               style={{ marginLeft: "auto", background: "none", border: "none", color: "#fff", fontSize: styleVars.headerFont, cursor: "pointer", transition: "color 0.2s", marginRight: 8 }}
-              onClick={() => setZoomed(z => !z)}
+              onClick={handleZoom}
               title={zoomed ? "Zoom Out" : "Zoom In"}
               onMouseOver={e => e.currentTarget.style.color = "#fbbf24"}
               onMouseOut={e => e.currentTarget.style.color = "#fff"}
@@ -199,6 +220,23 @@ const ChatbotWindow = () => {
           </div>
           {/* Messages */}
           <div style={{ flex: 1, padding: styleVars.msgPad, overflowY: "auto", fontSize: styleVars.msgFont, maxHeight: styleVars.msgMaxHeight, background: "rgba(255,255,255,0.55)", borderBottom: "1px solid #fbbf24", fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>
+            {messages.length === 0 && (
+              <div style={{ marginBottom: 14, textAlign: "left" }}>
+                <span style={{
+                  display: "inline-block",
+                  background: "linear-gradient(90deg, #fffbe6 80%, #fbbf24 100%)",
+                  color: "#222",
+                  borderRadius: zoomed ? 20 : 16,
+                  padding: zoomed ? "12px 22px" : "8px 16px",
+                  fontFamily: 'Caveat, Comic Sans MS, cursive',
+                  fontSize: styleVars.msgFont,
+                  boxShadow: "0 2px 12px 0 rgba(255, 224, 102, 0.12)",
+                  border: "1px solid #fbbf24"
+                }}>
+                  Hello, I am an expert in atmospheric science. How can I help you today?
+                </span>
+              </div>
+            )}
             {messages.map((msg, idx) => (
               <div key={idx} style={{
                 marginBottom: 14,
@@ -239,12 +277,25 @@ const ChatbotWindow = () => {
             style={{ display: "flex", padding: styleVars.inputPad, borderTop: "1px solid #fbbf24", background: "rgba(255,255,255,0.75)", borderBottomLeftRadius: styleVars.inputRadiusArea, borderBottomRightRadius: styleVars.inputRadiusArea, alignItems: "center" }}
             onSubmit={e => { e.preventDefault(); sendMessage(); }}
           >
-            <input
-              type="text"
+            <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Type your question..."
-              style={{ flex: 1, border: "none", outline: "none", fontSize: styleVars.inputFont, padding: "10px 12px", borderRadius: styleVars.inputRadius, background: "#fff", fontFamily: 'Inter, Segoe UI, Arial, sans-serif', boxShadow: "0 1px 4px 0 rgba(37,99,235,0.08)" }}
+              rows={2}
+              style={{
+                flex: 1,
+                border: "none",
+                outline: "none",
+                fontSize: styleVars.inputFont,
+                padding: "10px 12px",
+                borderRadius: styleVars.inputRadius,
+                background: "#fff",
+                fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+                boxShadow: "0 1px 4px 0 rgba(37,99,235,0.08)",
+                resize: "vertical",
+                minHeight: "2.5em",
+                maxHeight: "6em"
+              }}
               disabled={loading}
             />
             <button
@@ -270,7 +321,7 @@ const ChatbotWindow = () => {
             </button>
           </form>
         </div>
-      )}
+      
     </>
   );
 };

@@ -53,7 +53,7 @@ const LocationSearchBar = ({ locations, onSelect, onSearch }) => {
 
   return (
     <div className="relative w-full max-w-xs">
-      <div className="backdrop-blur-md bg-white/70 border border-blue-200 shadow-xl rounded-2xl px-4 py-3 flex items-center gap-2" style={{boxShadow: '0 4px 24px 0 rgba(37,99,235,0.10)'}}>
+      <div className="backdrop-blur-md bg-white/30 border border-blue-200 shadow-xl rounded-2xl px-4 py-3 flex items-center gap-2" style={{boxShadow: '0 4px 24px 0 rgba(37,99,235,0.10)'}}>
         <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -71,6 +71,20 @@ const LocationSearchBar = ({ locations, onSelect, onSearch }) => {
           aria-controls="location-suggestions"
           aria-activedescendant={showSuggestions && suggestions.length > 0 ? `suggestion-${suggestions[0].id}` : undefined}
         />
+        {query && (
+          <button
+            type="button"
+            className="ml-1 p-1 rounded-full bg-white/70 hover:bg-blue-100 border border-blue-200 text-blue-500 shadow transition-all"
+            style={{ lineHeight: 0, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+            aria-label="Clear search"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="9" fill="currentColor" fillOpacity="0.08" />
+              <path d="M7 7L13 13M13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        )}
         <button
           className="bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full px-4 py-1.5 text-sm font-semibold shadow hover:from-blue-600 hover:to-blue-800 transition-colors"
           onClick={() => suggestions.length > 0 && handleSelect(suggestions[0])}

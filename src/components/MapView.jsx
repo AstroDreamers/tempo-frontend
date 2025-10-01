@@ -53,7 +53,7 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
       {/* Options button in top right above sidebar */}
       <div className="absolute z-[1100] top-4 left-16 flex flex-row items-start space-x-4">
         {/* Options Dropdown */}
-        <div ref={dropdownRef} className="flex flex-col items-start">
+        <div ref={dropdownRef} className="flex flex-col items-start relative">
           <button
             onClick={() => setDropdownOpen((v) => !v)}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 border border-blue-200"
@@ -66,16 +66,17 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
           </button>
           {dropdownOpen && (
             <div
-              className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[180px] p-2"
+              className="absolute z-[1200] left-0 top-12 bg-white/50 border border-gray-200 rounded-lg shadow-lg min-w-[180px] p-2"
+              style={{ marginTop: 0 }}
             >
-              <label className="flex items-center cursor-pointer px-2 py-1 hover:bg-gray-100 rounded">
+              <label className="flex items-center cursor-pointer px-2 py-1 rounded-lg bg-gradient-to-r from-blue-100/40 via-white/0 to-blue-200/30 hover:from-blue-200/60 hover:to-blue-300/40 transition-all" style={{ opacity: 0.85 }}>
                 <input
                   type="checkbox"
                   checked={showTempo}
                   onChange={() => setShowTempo((v) => !v)}
                   className="mr-2 accent-blue-600"
                 />
-                TEMPO Satellite Layer
+                <span className="text-gray-800 font-medium">TEMPO Satellite Layer</span>
               </label>
               {/* Add more options here in the future */}
             </div>
@@ -83,22 +84,25 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
         </div>
       </div>
 
-      {/* Tempo Legend in bottom right */}
-      {showTempo && (
-        <div className="absolute bottom-4 right-4 z-[1100]">
-          <TempoLegend />
-        </div>
-      )}
+      {/* Tempo Legend in top left, below options button with smooth transition */}
+      <div
+        className={`absolute z-[1100] bottom-10 right-3 transition-all duration-500 ${showTempo ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
+        style={{ transitionProperty: 'opacity, transform', willChange: 'opacity, transform' }}
+      >
+        <TempoLegend />
+      </div>
       <MapContainer center={[37.8, -96]} zoom={4} style={{ height: "100%", width: "100%" }}>
         <SetMapRef />
         <TempoNO2Popup showTempo={showTempo} />
         {/* base map */}
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* TEMPO overlay (semi-transparent) */}
-        {showTempo && (
-          <TempoImageLayer visible={showTempo} opacity={0.6} />
-        )}
+        {/* TEMPO overlay (semi-transparent) with smooth transition */}
+  <div className={`transition-all duration-500 ${showTempo ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`} style={{ transitionProperty: 'opacity, transform', willChange: 'opacity, transform', position: 'absolute', inset: 0, zIndex: 1000, pointerEvents: 'none' }}>
+          {showTempo && (
+            <TempoImageLayer visible={showTempo} opacity={0.6} />
+          )}
+        </div>
 
         {/* your OpenAQ markers */}
         <MarkerClusterGroup>

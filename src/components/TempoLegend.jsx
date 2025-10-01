@@ -20,48 +20,48 @@ const TempoLegend = () => {
   }, []);
 
   return (
-    <div className="bg-white/80 backdrop-blur border border-blue-200 shadow-lg rounded-xl px-4 py-3 flex flex-col items-start min-w-[180px]">
-      <div className="flex items-center mb-2">
-        <span className="w-2 h-6 bg-blue-500 rounded mr-3"></span>
-        <div>
-          <strong className="text-blue-700 text-base">TEMPO NO₂ (molecules/cm²)</strong>
-          <div className="text-s text-gray-500 font-normal leading-tight">Measured in North America</div>
+    <div className="bg-gradient-to-br from-white/60 via-blue-100/40 to-blue-200/30 backdrop-blur-lg border border-blue-300 shadow-2xl rounded-2xl px-6 py-4 flex flex-col items-start min-w-[180px] max-w-xs" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <div className="flex items-center gap-3 mb-3">
+          <span className="w-2 h-7 bg-gradient-to-b from-blue-500 to-blue-300 rounded-full"></span>
+          <div>
+            <div className="text-blue-800 font-semibold text-lg tracking-tight">TEMPO NO₂</div>
+            <div className="text-xs text-gray-500 font-medium leading-tight">molecules/cm² · North America</div>
+          </div>
+        </div>
+        <div className="w-full flex flex-col gap-2">
+          {legendItems.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors">
+              {item.imageData && (
+                <img
+                  src={`data:${item.contentType};base64,${item.imageData}`}
+                  alt={item.label || "legend color"}
+                  className="w-6 h-6 border border-gray-300 rounded shadow-sm"
+                />
+              )}
+              <span className="text-gray-700 text-sm font-medium">
+                {(() => {
+                  // Try to extract and format the value if present in label
+                  const match = item.label && item.label.match(/(High|Low) ?: ?([-+eE0-9.]+)/);
+                  if (match) {
+                    const [_, type, val] = match;
+                    let num = Number(val);
+                    let formatted = '';
+                    if (!isNaN(num)) {
+                      if (Math.abs(num) >= 1e6 || Math.abs(num) < 1e-2) {
+                        formatted = num.toExponential(2);
+                      } else {
+                        formatted = num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                      }
+                      return `${type} : ${formatted}`;
+                    }
+                  }
+                  return item.label;
+                })()}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="w-full">
-        {legendItems.map((item, idx) => (
-          <div key={idx} className="flex items-center mb-1 last:mb-0">
-            {item.imageData && (
-              <img
-                src={`data:${item.contentType};base64,${item.imageData}`}
-                alt={item.label || "legend color"}
-                className="w-5 h-5 mr-2 inline-block border border-gray-300 rounded"
-              />
-            )}
-            <span className="text-gray-700">
-              {(() => {
-                // Try to extract and format the value if present in label
-                const match = item.label && item.label.match(/(High|Low) ?: ?([-+eE0-9.]+)/);
-                if (match) {
-                  const [_, type, val] = match;
-                  let num = Number(val);
-                  let formatted = '';
-                  if (!isNaN(num)) {
-                    if (Math.abs(num) >= 1e6 || Math.abs(num) < 1e-2) {
-                      formatted = num.toExponential(2);
-                    } else {
-                      formatted = num.toLocaleString(undefined, { maximumFractionDigits: 2 });
-                    }
-                    return `${type} : ${formatted}`;
-                  }
-                }
-                return item.label;
-              })()}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 };
 
