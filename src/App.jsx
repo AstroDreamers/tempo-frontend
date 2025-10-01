@@ -7,6 +7,7 @@ import { fetchLocations } from "./api/locations";
 import MapView from "./components/MapView";
 import LocationSidebar from "./components/LocationSidebar";
 import LocationSearchBar from "./components/LocationSearchBar";
+import ChatbotWindow from "./components/ChatbotWindow";
 
 
 
@@ -61,6 +62,7 @@ function App() {
         onClose={closeSidebar}
         onZoomToLocation={handleZoomToLocation}
       />
+      <ChatbotWindow />
     </div>
   );
 }

@@ -6,6 +6,10 @@ const TempoNO2Popup = ({ showTempo }) => {
   useMapEvents({
     click: async (e) => {
       if (!showTempo) return;
+      // Ignore clicks on markers (Leaflet markers have class 'leaflet-marker-icon')
+      if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.classList) {
+        if (e.originalEvent.target.classList.contains('leaflet-marker-icon')) return;
+      }
       const { lat, lng } = e.latlng;
       const url = `https://gis.earthdata.nasa.gov/image/rest/services/C3685896708-LARC_CLOUD/TEMPO_NO2_L3_V04_HOURLY_TROPOSPHERIC_VERTICAL_COLUMN/ImageServer/identify?f=json&geometry=${lng},${lat}&geometryType=esriGeometryPoint&sr=4326&returnGeometry=false&returnCatalogItems=false&returnPixelValues=true`;
       setPopup({ lat, lng, value: 'Loading...' });
