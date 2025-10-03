@@ -7,7 +7,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import TempoImageLayer from "./TempoImageLayer";
-import TempoLegend from "./TempoLegend";
+// TempoLegend removed per request
 import TempoNO2Popup from "./TempoNO2Popup";
 import PropTypes from "prop-types";
 
@@ -23,33 +23,28 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
     TEMPO_NO2: {
       key: "TEMPO_NO2",
       label: "NO₂ (Tropospheric Vertical Column)",
+      unit: "molec/cm²",
       url: "https://gis.earthdata.nasa.gov/image/rest/services/C3685896708-LARC_CLOUD/TEMPO_NO2_L3_V04_HOURLY_TROPOSPHERIC_VERTICAL_COLUMN/ImageServer",
     },
     TEMPO_NO2_V03: {
       key: "TEMPO_NO2_V03",
       label: "NO₂ (v03)",
+      unit: "molec/cm²",
       url: "https://gis.earthdata.nasa.gov/image/rest/services/C2930763263-LARC_CLOUD/TEMPO_NO2_L3_V03_HOURLY_TROPOSPHERIC_VERTICAL_COLUMN/ImageServer",
     },
     TEMPO_O3: {
       key: "TEMPO_O3",
       label: "O₃ (Ozone)",
+      unit: "DU",
       url: "https://gis.earthdata.nasa.gov/image/rest/services/C3685896625-LARC_CLOUD/TEMPO_O3TOT_L3_V04_HOURLY_OZONE_COLUMN_AMOUNT/ImageServer",
     },
     TEMPO_O3_V03: {
       key: "TEMPO_O3_V03",
       label: "O₃ (v03)",
+      unit: "DU",
       url: "https://gis.earthdata.nasa.gov/image/rest/services/C2930764281-LARC_CLOUD/TEMPO_O3TOT_L3_V03_HOURLY_OZONE_COLUMN_AMOUNT/ImageServer",
     },
-    TEMPO_HCHO: {
-      key: "TEMPO_HCHO",
-      label: "HCHO (Formaldehyde)",
-      url: "https://gis.earthdata.nasa.gov/image/rest/services/C3685897141-LARC_CLOUD/TEMPO_HCHO_L3_V04_HOURLY_VERTICAL_COLUMN/ImageServer",
-    },
-    TEMPO_HCHO_V03: {
-      key: "TEMPO_HCHO_V03",
-      label: "HCHO (v03)",
-      url: "https://gis.earthdata.nasa.gov/image/rest/services/C2930761273-LARC_CLOUD/TEMPO_HCHO_L3_V03_HOURLY_VERTICAL_COLUMN/ImageServer",
-    },
+    
   
   };
 
@@ -117,7 +112,7 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
               </label>
               {/* Product selector */}
               <div className="mt-2 px-2">
-                <label className="text-xs text-gray-600 font-medium">Product</label>
+                <label className="text-xs text-gray-600 font-medium">Parameter</label>
                 <select
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
@@ -136,13 +131,7 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
         </div>
       </div>
 
-      {/* Tempo Legend in top left, below options button with smooth transition */}
-      <div
-        className={`absolute z-[1100] bottom-10 right-3 transition-all duration-500 ${showTempo ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
-        style={{ transitionProperty: 'opacity, transform', willChange: 'opacity, transform' }}
-      >
-        <TempoLegend product={PRODUCTS[selectedProduct]} />
-      </div>
+      {/* Legend removed per user request */}
       <MapContainer center={[37.8, -96]} zoom={4} style={{ height: "100%", width: "100%" }}>
         <SetMapRef />
   <TempoNO2Popup showTempo={showTempo} product={PRODUCTS[selectedProduct]} />

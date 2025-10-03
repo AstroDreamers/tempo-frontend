@@ -24,8 +24,10 @@ const TempoNO2Popup = ({ showTempo, product = null }) => {
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const value = data.value ?? (data.pixelValues && data.pixelValues[0]?.value);
-        setPopup({ lat, lng, value: value !== undefined ? value : 'No data' });
+    let value = data.value ?? (data.pixelValues && data.pixelValues[0]?.value);
+    // server may provide units in different fields
+  const serverUnit = data.units || data.unit || (data.pixelValues && data.pixelValues[0]?.units);
+    setPopup({ lat, lng, value: value !== undefined ? value : 'No data', unit: serverUnit });
       } catch {
         setPopup({ lat, lng, value: 'Error' });
       }
@@ -44,7 +46,7 @@ const TempoNO2Popup = ({ showTempo, product = null }) => {
   return popup ? (
     <Popup position={[popup.lat, popup.lng]} eventHandlers={{ remove: () => setPopup(null) }}>
       <div>
-        <strong>{product?.label || 'TEMPO'}:</strong> {formatNO2(popup.value)}
+        <strong>{product?.label || 'TEMPO'}:</strong> {formatNO2(popup.value)}{popup.unit ? ` ${popup.unit}` : (product?.unit ? ` ${product.unit}` : '')}
       </div>
     </Popup>
   ) : null;
