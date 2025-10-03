@@ -13,9 +13,9 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<MapPage />} />
-  <Route path="/login" element={<LoginPage />} />
-  <Route path="/signup" element={<SignupPage />} />
-  <Route path="/verify" element={<VerifyPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/verify" element={<VerifyPage />} />
         {/* Add more protected routes here */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
