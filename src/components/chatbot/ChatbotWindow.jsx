@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { askChat } from "../api/ai";
+import { askChat } from "../../api/ai";
 
 const ChatbotWindow = () => {
   const [open, setOpen] = useState(false);
