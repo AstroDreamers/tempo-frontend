@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getSensorsByLocationId, getHourlyMeasurementBySensorId } from "../api/sensors";
-import { askWithData } from "../api/ai";
+import { getSensorsByLocationId, getHourlyMeasurementBySensorId } from "../../api/sensors";
+import { askWithData } from "../../api/ai";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';

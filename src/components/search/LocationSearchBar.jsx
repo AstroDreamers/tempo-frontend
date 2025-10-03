@@ -53,7 +53,7 @@ const LocationSearchBar = ({ locations, onSelect, onSearch }) => {
 
   return (
     <div className="relative w-full max-w-xs">
-      <div className="backdrop-blur-md bg-white/30 border border-blue-200 shadow-xl rounded-2xl px-4 py-3 flex items-center gap-2" style={{boxShadow: '0 4px 24px 0 rgba(37,99,235,0.10)'}}>
+      <div className="backdrop-blur-md bg-white/30 border border-blue-200 shadow-xl rounded-2xl px-4 py-3 flex flex-nowrap items-center gap-2" style={{boxShadow: '0 4px 24px 0 rgba(37,99,235,0.10)'}}>
         <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -61,7 +61,7 @@ const LocationSearchBar = ({ locations, onSelect, onSearch }) => {
         <input
           ref={inputRef}
           type="text"
-          className="flex-1 bg-transparent outline-none border-none text-blue-900 placeholder-blue-400 font-medium text-base px-0 py-1"
+          className="flex-1 max-w-[140px] truncate bg-transparent outline-none border-none text-blue-900 placeholder-blue-400 font-medium text-base px-0 py-1 overflow-hidden"
           placeholder="Search location..."
           value={query}
           onChange={handleInput}
