@@ -1,17 +1,25 @@
 import React, { useState } from "react";
 import { Popup, useMapEvents } from "react-leaflet";
 
-const TempoNO2Popup = ({ showTempo }) => {
+// This component shows an identify popup for the currently selected TEMPO product.
+// `product` should be an object with { key, label, url } and `showTempo` toggles behavior.
+const TempoNO2Popup = ({ showTempo, product = null }) => {
   const [popup, setPopup] = useState(null);
   useMapEvents({
     click: async (e) => {
       if (!showTempo) return;
+      if (!product || !product.url) return;
+      if (product.requiresToken) {
+        const { lat, lng } = e.latlng;
+        setPopup({ lat, lng, value: 'Token required for this product' });
+        return;
+      }
       // Ignore clicks on markers (Leaflet markers have class 'leaflet-marker-icon')
       if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.classList) {
         if (e.originalEvent.target.classList.contains('leaflet-marker-icon')) return;
       }
       const { lat, lng } = e.latlng;
-      const url = `https://gis.earthdata.nasa.gov/image/rest/services/C3685896708-LARC_CLOUD/TEMPO_NO2_L3_V04_HOURLY_TROPOSPHERIC_VERTICAL_COLUMN/ImageServer/identify?f=json&geometry=${lng},${lat}&geometryType=esriGeometryPoint&sr=4326&returnGeometry=false&returnCatalogItems=false&returnPixelValues=true`;
+      const url = `${product.url.replace(/\/+$/,'')}/identify?f=json&geometry=${lng},${lat}&geometryType=esriGeometryPoint&sr=4326&returnGeometry=false&returnCatalogItems=false&returnPixelValues=true`;
       setPopup({ lat, lng, value: 'Loading...' });
       try {
         const res = await fetch(url);
@@ -36,7 +44,7 @@ const TempoNO2Popup = ({ showTempo }) => {
   return popup ? (
     <Popup position={[popup.lat, popup.lng]} eventHandlers={{ remove: () => setPopup(null) }}>
       <div>
-        <strong>TEMPO NO₂:</strong> {formatNO2(popup.value)}
+        <strong>{product?.label || 'TEMPO'}:</strong> {formatNO2(popup.value)}
       </div>
     </Popup>
   ) : null;
