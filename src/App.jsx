@@ -1,8 +1,24 @@
 
 
+
 import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MapPage from "./pages/MapPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import VerifyPage from "./pages/VerifyPage";
 
 export default function App() {
-  return <MapPage />;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MapPage />} />
+  <Route path="/login" element={<LoginPage />} />
+  <Route path="/signup" element={<SignupPage />} />
+  <Route path="/verify" element={<VerifyPage />} />
+        {/* Add more protected routes here */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
+  );
 }
