@@ -123,7 +123,7 @@ export default function DashboardPage() {
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (error) return <div className="mt-10 p-8 text-center text-red-500">{error}</div>;
 
   return (
     <div className="max-w-6xl mx-auto mt-10 p-6 space-y-6">
@@ -198,7 +198,6 @@ export default function DashboardPage() {
             </tbody>
           </table>
         </div>
-        <p className="text-sm text-gray-500 mt-3 italic">All pollutant concentrations are measured in μg/m³</p>
       </div>
 
       {/* Subscriptions Section */}

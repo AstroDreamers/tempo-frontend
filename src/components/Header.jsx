@@ -4,7 +4,9 @@ import { getCurrentUser } from "../api/user";
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard" },
-  { name: "Map", path: "/" },
+  { name: "Map", path: "/map" },
+  { name: "Introduction", path: "/introduction" },
+  { name: "Guide", path: "/guide" },
 ];
 
 function UserIcon({ username }) {
