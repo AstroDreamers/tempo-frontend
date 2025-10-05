@@ -10,13 +10,17 @@ import SignupPage from "./pages/SignupPage";
 import VerifyPage from "./pages/VerifyPage";
 import Header from "./components/Header";
 import AlertsPage from "./pages/AlertsPage";
+import GuidePage from "./pages/GuidePage";
+import IntroductionPage from "./pages/IntroductionPage";
 
 export default function App() {
   return (
     <Router>
       <Header />
   <Routes>
-    <Route path="/map" element={<MapPage />} />
+  <Route path="/introduction" element={<IntroductionPage />} />
+  <Route path="/map" element={<MapPage />} />
+  <Route path="/guide" element={<GuidePage />} />
     <Route path="/dashboard" element={<DashboardPage />} />
     <Route path="/alerts" element={<AlertsPage />} />
     <Route path="/login" element={<LoginPage />} />

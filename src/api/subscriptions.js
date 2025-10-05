@@ -13,7 +13,7 @@ export async function getAllSubscriptions() {
       'Content-Type': 'application/json',
     },
   });
-  if (!response.ok) throw new Error('Failed to fetch subscriptions');
+  if (!response.ok) throw new Error('Failed to fetch subscriptions. You have to log in in order to use dashboard!');
   return await response.json();
 }
 
