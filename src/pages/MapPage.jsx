@@ -41,7 +41,7 @@ function MapPage() {
   };
 
   return (
-    <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
+    <div style={{ height: "calc(100vh - 3rem)", width: "100vw", position: "relative", marginTop: "3rem" }}>
       {/* Search bar in top center */}
       <div className="absolute z-[1200] top-4 left-1/2 -translate-x-1/2 w-full flex justify-center pointer-events-none">
         <div className="pointer-events-auto">

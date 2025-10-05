@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { subscribeToLocation } from "../../api/subscriptions";
 import { getSensorsByLocationId, getHourlyMeasurementBySensorId } from "../../api/sensors";
 import { askWithData } from "../../api/ai";
 import {
@@ -13,6 +14,7 @@ const LocationSidebar = ({ location, onClose }) => {
   const [aiNotes, setAiNotes] = useState({}); // sensorId -> response
   const [aiLoading, setAiLoading] = useState({}); // sensorId -> loading
   const [aiStreaming, setAiStreaming] = useState({}); // sensorId -> streaming text
+  const [subscribeMsg, setSubscribeMsg] = useState(null);
 
   useEffect(() => {
     if (!location?.id) return;
@@ -52,18 +54,49 @@ const LocationSidebar = ({ location, onClose }) => {
   <div className="fixed top-10 right-10 w-[360px] max-w-[90vw] min-h-[200px] bg-white shadow-2xl rounded-2xl z-[1200] flex flex-col transition-all duration-300">
   {/* Header */}
   <div className="w-full rounded-t-2xl bg-blue-600 px-6 py-4 flex items-center justify-between sticky top-0 z-20" style={{borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem'}}>
-        <div className="text-white text-lg font-bold truncate" title={location.locality || 'Unknown'}>
-          {location.locality || "Unknown"}
-        </div>
-        <button
-          onClick={onClose}
-          className="text-2xl border-none bg-transparent cursor-pointer text-blue-100 hover:text-white transition-colors duration-200 ml-4"
-          aria-label="Close"
-        >
-          &times;
-        </button>
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="text-white text-lg font-bold truncate" title={location.locality || 'Unknown'}>
+        {location.locality || "Unknown"}
       </div>
+      {typeof window !== 'undefined' && localStorage.getItem('token') && (
+        <button
+          className="ml-2 p-2 rounded-full text-white border border-white/30 bg-blue-500 hover:bg-blue-700 transition flex items-center justify-center"
+          onClick={async () => {
+            try {
+              await subscribeToLocation({
+                locationId: location.id,
+                locationName: location.locality || "Unknown",
+                lat: location.coordinates?.latitude,
+                lon: location.coordinates?.longitude
+              });
+              setSubscribeMsg({ type: 'success', text: 'Subscribed successfully!' });
+            } catch (err) {
+              setSubscribeMsg({ type: 'error', text: err.message || 'Subscription failed' });
+            }
+            setTimeout(() => setSubscribeMsg(null), 3000);
+          }}
+          title="Subscribe"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </button>
+      )}
+    </div>
+    <button
+      onClick={onClose}
+      className="text-2xl border-none bg-transparent cursor-pointer text-blue-100 hover:text-white transition-colors duration-200 ml-4"
+      aria-label="Close"
+    >
+      &times;
+    </button>
+  </div>
       {/* Content */}
+  {subscribeMsg && (
+    <div className={`mx-6 mt-3 mb-0 px-4 py-2 rounded-lg text-sm font-semibold shadow transition-all duration-300 ${subscribeMsg.type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+      {subscribeMsg.text}
+    </div>
+  )}
   <div className="px-6 py-5 text-base overflow-y-auto max-h-[70vh]">
         {loading && <div className="text-gray-500">Loading sensors...</div>}
         {error && <div className="text-red-500">{error}</div>}

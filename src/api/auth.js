@@ -1,3 +1,6 @@
+// API functions for authentication
+const API_URL = process.env.REACT_APP_API_BASE || 'http://localhost:8080';
+
 export async function resendVerificationCode(email) {
   const res = await fetch(`${API_URL}/resend?email=${encodeURIComponent(email)}`, {
     method: 'POST',
@@ -7,11 +10,10 @@ export async function resendVerificationCode(email) {
   if (!res.ok) throw new Error(text || 'Resend failed');
   return text;
 }
-// API functions for authentication
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/auth';
+
 
 export async function loginUser({ email, password }) {
-  const res = await fetch(`${API_URL}/login`, {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -30,7 +32,7 @@ export async function loginUser({ email, password }) {
 }
 
 export async function signupUser({ email, password, name }) {
-  const res = await fetch(`${API_URL}/signup`, {
+  const res = await fetch(`${API_URL}/auth/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, username: name })
@@ -41,7 +43,7 @@ export async function signupUser({ email, password, name }) {
 
 
 export async function verifyUser({ email, verificationCode }) {
-  const res = await fetch(`${API_URL}/verify`, {
+  const res = await fetch(`${API_URL}/auth/verify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, verificationCode })
