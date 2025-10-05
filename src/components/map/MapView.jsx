@@ -8,7 +8,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import TempoImageLayer from "./TempoImageLayer";
 // TempoLegend removed per request
-import TempoNO2Popup from "./TempoNO2Popup";
 import PropTypes from "prop-types";
 
 const MapView = ({ locations, onMarkerClick, mapRef }) => {
@@ -134,7 +133,6 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
       {/* Legend removed per user request */}
       <MapContainer center={[37.8, -96]} zoom={4} style={{ height: "100%", width: "100%" }}>
         <SetMapRef />
-  <TempoNO2Popup showTempo={showTempo} product={PRODUCTS[selectedProduct]} />
         {/* base map */}
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 

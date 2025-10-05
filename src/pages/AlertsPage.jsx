@@ -51,6 +51,7 @@ export default function AlertsPage() {
       }
       setAlerts(alertsMap);
     } catch (err) {
+      console.error("AlertsPage error:", err);
       setError(err.message || "Failed to load alert data");
     }
     setLoading(false);

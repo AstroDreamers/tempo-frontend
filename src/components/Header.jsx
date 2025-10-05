@@ -3,8 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { getCurrentUser } from "../api/user";
 
 const navItems = [
+  { name: "Getting Started", path: "/" },
   { name: "Dashboard", path: "/dashboard" },
-  { name: "Map", path: "/" },
+  { name: "Map", path: "/map" },
+  { name: "Subscriptions", path: "/subscriptions" },
 ];
 
 function UserIcon({ username }) {
