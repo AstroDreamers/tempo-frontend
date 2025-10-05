@@ -81,7 +81,7 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
   }
 
   return (
-    <div style={{ height: "100%", width: "100%", position: "relative" }}>
+    <div style={{ height: "calc(100vh - 2.25rem)", width: "100%", position: "relative", marginTop: '2.25rem' }}>
       {/* Options button in top right above sidebar */}
       <div className="absolute z-[1100] top-4 left-16 flex flex-row items-start space-x-4">
         {/* Options Dropdown */}
