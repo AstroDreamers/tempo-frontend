@@ -22,12 +22,15 @@ export default function App() {
   <Route path="/map" element={<MapPage />} />
   <Route path="/guide" element={<GuidePage />} />
     <Route path="/dashboard" element={<DashboardPage />} />
+    <Route path="/map" element={<MapPage />} />
     <Route path="/alerts" element={<AlertsPage />} />
+    <Route path="/subscriptions" element={<SubscriptionsPage />} />
+    <Route path="/getting-started" element={<GettingStartedPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignupPage />} />
     <Route path="/verify" element={<VerifyPage />} />
     {/* Add more protected routes here */}
-    <Route path="*" element={<Navigate to="/map" />} />
+    <Route path="*" element={<Navigate to="/" />} />
   </Routes>
     </Router>
   );

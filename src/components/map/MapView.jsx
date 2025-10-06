@@ -5,10 +5,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from 'leaflet';
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import TempoImageLayer from "./TempoImageLayer";
 // TempoLegend removed per request
-import TempoNO2Popup from "./TempoNO2Popup";
 import PropTypes from "prop-types";
 
 const MapView = ({ locations, onMarkerClick, mapRef }) => {
@@ -64,19 +64,72 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
   }, [dropdownOpen]);
 
   // Attach mapRef to the Leaflet map instance and dispatch custom event on map click
+  // Also run an identify request against the active TEMPO ImageServer to fetch the
+  // pixel value at the clicked location and show it in a popup.
   function SetMapRef() {
     const map = useMap();
     useEffect(() => {
       if (mapRef) mapRef.current = map;
-      // Dispatch custom event to close location search suggestions
-      const handleMapClick = () => {
+
+      // Identify function: call the ImageServer identify endpoint for the current product
+      async function identifyAt(latlng) {
+        const prod = PRODUCTS[selectedProduct];
+        if (!prod || !prod.url) return;
+        try {
+          const geometry = JSON.stringify({ x: latlng.lng, y: latlng.lat, spatialReference: { wkid: 4326 } });
+          const params = new URLSearchParams({
+            f: 'json',
+            geometry,
+            geometryType: 'esriGeometryPoint',
+            sr: '4326',
+            tolerance: '1',
+            returnGeometry: 'false',
+            returnCatalogItems: 'false'
+          });
+
+          const resp = await fetch(`${prod.url}/identify?${params.toString()}`);
+          const json = await resp.json();
+
+          // Try several likely response shapes for a pixel value
+          let value = null;
+          if (json == null) {
+            value = null;
+          } else if (json.value !== undefined) {
+            value = json.value;
+          } else if (Array.isArray(json.results) && json.results[0] && json.results[0].value !== undefined) {
+            value = json.results[0].value;
+          } else if (json.catalogResults && json.catalogResults.length && json.catalogResults[0].attributes) {
+            // Some ImageServers return catalogResults with attributes
+            value = JSON.stringify(json.catalogResults[0].attributes);
+          } else if (json.results && json.results.length) {
+            value = JSON.stringify(json.results[0]).slice(0, 200);
+          } else {
+            value = null;
+          }
+
+          const display = value !== null ? String(value) : 'No data at this location';
+          const content = `<div style="min-width:200px"><strong>${prod.label}</strong><br/>Lat: ${latlng.lat.toFixed(4)}<br/>Lon: ${latlng.lng.toFixed(4)}<br/><strong>Value:</strong> ${display}</div>`;
+          L.popup({ maxWidth: 400 }).setLatLng(latlng).setContent(content).openOn(map);
+        } catch (err) {
+          console.error('Identify request failed', err);
+          L.popup({ maxWidth: 400 }).setLatLng(latlng).setContent('<div><strong>Error fetching value</strong></div>').openOn(map);
+        }
+      }
+
+      // Dispatch custom event to close location search suggestions and run identify
+      const handleMapClick = (e) => {
         window.dispatchEvent(new Event('tempo-map-click'));
+        // run identify only when TEMPO overlay is visible
+        if (showTempo) {
+          identifyAt(e.latlng);
+        }
       };
+
       map.on('click', handleMapClick);
       return () => {
         map.off('click', handleMapClick);
       };
-    }, [map]);
+    }, [map, mapRef, showTempo, selectedProduct]);
     return null;
   }
 
@@ -134,7 +187,6 @@ const MapView = ({ locations, onMarkerClick, mapRef }) => {
       {/* Legend removed per user request */}
       <MapContainer center={[37.8, -96]} zoom={4} style={{ height: "100%", width: "100%" }}>
         <SetMapRef />
-  <TempoNO2Popup showTempo={showTempo} product={PRODUCTS[selectedProduct]} />
         {/* base map */}
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 

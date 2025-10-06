@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { getCurrentUser } from "../api/user";
 
 const navItems = [
+  { name: "Getting Started", path: "/" },
   { name: "Dashboard", path: "/dashboard" },
   { name: "Map", path: "/map" },
   { name: "Introduction", path: "/introduction" },
