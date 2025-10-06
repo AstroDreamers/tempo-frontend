@@ -349,7 +349,7 @@ export default function DashboardPage() {
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (error) return <div className="mt-10 p-8 text-center text-red-500">{error}</div>;
 
   return (
     <main className="container mx-auto max-w-[1280px] px-[64px] pt-[100px] pb-6">
@@ -382,28 +382,7 @@ export default function DashboardPage() {
             />
           </div>
         </div>
-      ) : (
-        <>
-          {/* City Hero Section */}
-          <CityHero 
-            cityName={selectedLocation?.locality || "Location"} 
-            isSubscribed={isSubscribed}
-            subscribing={subscribing}
-            onSubscribeClick={handleSubscribe}
-            onAlertsClick={() => {
-              const lat = selectedLocation?.coordinates?.latitude || selectedLocation?.coordinates?.[1] || selectedLocation?.latitude;
-              const lon = selectedLocation?.coordinates?.longitude || selectedLocation?.coordinates?.[0] || selectedLocation?.longitude;
-              console.log("Navigating to alerts with:", { locationId: selectedLocation?.id, lat, lon });
-              navigate('/alerts', { 
-                state: { 
-                  locationId: selectedLocation?.id, 
-                  locationName: selectedLocation?.locality || selectedLocation?.name,
-                  lat,
-                  lon
-                } 
-              });
-            }} 
-          />
+      </div>
 
           {/* Split row: equal depth */}
           <section className="grid grid-cols-12 gap-5" style={{ gridAutoRows: '1fr' }}>
