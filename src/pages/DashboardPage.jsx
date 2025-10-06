@@ -362,7 +362,7 @@ export default function DashboardPage() {
   if (error) return <div className="mt-10 p-8 text-center text-red-500">{error}</div>;
 
   return (
-    <main className="container mx-auto max-w-[1280px] px-[64px] pt-[100px] pb-6">
+    <main className="container mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-16 pt-[84px] pb-6">
       {!hasUserSelectedLocation ? (
         /* Welcome message before location selection */
         <div className="flex flex-col items-center justify-center min-h-[600px] text-center">
@@ -419,9 +419,9 @@ export default function DashboardPage() {
           <>
 
       {/* Split row: equal depth */}
-          <section className="grid grid-cols-12 gap-5" style={{ gridAutoRows: '1fr' }}>
+          <section className="grid grid-cols-1 md:grid-cols-12 gap-5" style={{ gridAutoRows: '1fr' }}>
             {/* LEFT: AQI + PollutantBreakdown + Insight + Map stacked */}
-            <div className="col-span-7">
+            <div className="col-span-1 md:col-span-7">
               <div className="grid grid-rows-[auto_auto_auto_minmax(0,1fr)] gap-5 min-h-[720px]">
                 {/* Location Name */}
 
@@ -512,7 +512,7 @@ export default function DashboardPage() {
             </div>
 
             {/* RIGHT: scrollable sensors panel */}
-            <div className="col-span-5 min-h-[720px]">
+            <div className="col-span-1 md:col-span-5 min-h-[360px] md:min-h-[720px]">
               <SensorsPanel 
                 sensors={sensorsForMap}
                 cityName={selectedLocation?.locality || "Location"}
