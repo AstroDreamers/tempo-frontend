@@ -31,27 +31,27 @@ export default function SubscriptionsPage() {
             limit: 5
           });
           
-          console.log(`Fetching location for ID ${sub.locationId}:`, locations);
+          // console.log(`Fetching location for ID ${sub.locationId}:`, locations);
           
           // ONLY use exact locationId match, never use closest/fallback
           const exactMatch = locations?.find(loc => loc.id === sub.locationId);
           
           if (exactMatch) {
             details[sub.locationId] = {
-              name: exactMatch.locality || exactMatch.name || `Location ${sub.locationId}`
+              name: exactMatch.locality || exactMatch.name || sub.locationName || `Location ${sub.locationId}`
             };
             console.log(`Found exact match for ${sub.locationId}:`, details[sub.locationId].name);
           } else {
-            // No exact match - just use locationId
+            // No exact match - prefer any stored subscription.locationName, otherwise fall back to ID
             details[sub.locationId] = {
-              name: `Location ${sub.locationId}`
+              name: sub.locationName || `Location ${sub.locationId}`
             };
-            console.log(`No exact match for ${sub.locationId}, using ID`);
+            console.log(`No exact match for ${sub.locationId}, using subscription name or ID`);
           }
         } catch (locErr) {
           console.error(`Failed to fetch location for ${sub.locationId}:`, locErr);
           details[sub.locationId] = {
-            name: `Location ${sub.locationId}`
+            name: sub.locationName || `Location ${sub.locationId}`
           };
         }
       }
@@ -137,98 +137,102 @@ export default function SubscriptionsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {subscriptions.map((subscription) => (
-              <div
-                key={subscription.id}
-                className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-800">
-                          {locationDetails[subscription.locationId]?.name || 'Loading...'}
-                        </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          📍 {subscription.lat?.toFixed(4)}, {subscription.lon?.toFixed(4)}
-                        </p>
+            {subscriptions.map((subscription) => {
+              // Log the full subscription object for debugging
+              // console.log('subscription', subscription);
+              return (
+                <div
+                  key={subscription.id}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            {subscription.locationName || `Location ${subscription.locationId}`}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            📍 {subscription.lat?.toFixed(4)}, {subscription.lon?.toFixed(4)}
+                          </p>
+                        </div>
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full -mt-4">
+                          {subscription.alerts?.length || 0} {subscription.alerts?.length === 1 ? 'alert' : 'alerts'}
+                        </span>
                       </div>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                        {subscription.alerts?.length || 0} {subscription.alerts?.length === 1 ? 'alert' : 'alerts'}
-                      </span>
-                    </div>
 
-                    {/* Alerts List */}
-                    {subscription.alerts && subscription.alerts.length > 0 && (
-                      <div className="mt-4 space-y-2">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Active Alerts:</h4>
-                        {subscription.alerts.map((alert) => (
-                          <div
-                            key={alert.id}
-                            className="bg-gray-50 rounded-lg p-3 border border-gray-200"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium text-gray-800">
-                                    Sensor: {alert.sensorId}
-                                  </span>
-                                  <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                                    alert.alertEnabled 
-                                      ? 'bg-green-100 text-green-700'
-                                      : 'bg-gray-100 text-gray-700'
-                                  }`}>
-                                    {alert.alertEnabled ? 'Enabled' : 'Disabled'}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-600">
-                                  Threshold: {alert.threshold}
-                                </p>
-                                {alert.quietStart && alert.quietEnd && (
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    🌙 Quiet hours: {alert.quietStart} - {alert.quietEnd}
+                      {/* Alerts List */}
+                      {subscription.alerts && subscription.alerts.length > 0 && (
+                        <div className="mt-2 space-y-2">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Active Alerts:</h4>
+                          {subscription.alerts.map((alert) => (
+                            <div
+                              key={alert.id}
+                              className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-medium text-gray-800">
+                                      Sensor: {alert.sensorId}
+                                    </span>
+                                    <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                      alert.alertEnabled 
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      {alert.alertEnabled ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600">
+                                    Threshold: {alert.threshold}
                                   </p>
-                                )}
+                                  {alert.quietStart && alert.quietEnd && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      🌙 Quiet hours: {alert.quietStart} - {alert.quietEnd}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 ml-4">
-                    <button
-                      onClick={() => {
-                        // Always use the subscription's actual locationId and coordinates
-                        // Don't rely on fetched location data which might have different ID
-                        navigate('/dashboard', {
-                          state: {
-                            autoLoadLocation: {
-                              id: subscription.locationId,
-                              coordinates: [subscription.lon, subscription.lat],
-                              locality: locationDetails[subscription.locationId]?.name || `Location ${subscription.locationId}`,
-                              latitude: subscription.lat,
-                              longitude: subscription.lon
+                    {/* Actions */}
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        onClick={() => {
+                          // Always use the subscription's actual locationId and coordinates
+                          // Don't rely on fetched location data which might have different ID
+                          navigate('/dashboard', {
+                            state: {
+                              autoLoadLocation: {
+                                id: subscription.locationId,
+                                coordinates: [subscription.lon, subscription.lat],
+                                locality: locationDetails[subscription.locationId]?.name || subscription.locationName || `Location ${subscription.locationId}`,
+                                latitude: subscription.lat,
+                                longitude: subscription.lon
+                              }
                             }
-                          }
-                        });
-                      }}
-                      className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      View Details
-                    </button>
-                    <button
-                      onClick={() => handleUnsubscribe(subscription.locationId)}
-                      className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      Unsubscribe
-                    </button>
+                          });
+                        }}
+                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => handleUnsubscribe(subscription.locationId)}
+                        className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        Unsubscribe
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

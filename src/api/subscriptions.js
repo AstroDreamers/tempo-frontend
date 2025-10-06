@@ -13,7 +13,7 @@ export async function getAllSubscriptions() {
       'Content-Type': 'application/json',
     },
   });
-  if (!response.ok) throw new Error('Failed to fetch subscriptions');
+  if (!response.ok) throw new Error('Failed to fetch subscriptions. You have to log in to subscribe!');
   return await response.json();
 }
 
@@ -28,7 +28,7 @@ export async function getSubscription(locationId) {
       'Content-Type': 'application/json',
     },
   });
-  if (!response.ok) throw new Error('Failed to fetch subscription');
+  if (!response.ok) throw new Error('Failed to fetch subscription. You have to log in to subscribe!');
   return await response.json();
 }
 
