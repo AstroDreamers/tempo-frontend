@@ -6,8 +6,7 @@ const navItems = [
   { name: "Getting Started", path: "/" },
   { name: "Dashboard", path: "/dashboard" },
   { name: "Map", path: "/map" },
-  { name: "Introduction", path: "/introduction" },
-  { name: "Guide", path: "/guide" },
+  { name: "Subscriptions", path: "/subscriptions" },
 ];
 
 function UserIcon({ username }) {

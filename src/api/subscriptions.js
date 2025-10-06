@@ -76,7 +76,7 @@ export async function subscribeToLocation({ locationId, locationName, lat, lon }
     let errorMsg = 'Subscription failed';
     try {
       const errorText = await response.text();
-      if (errorText) errorMsg = errorText;
+      if (errorText) errorMsg = 'Subscription failed. You have to log in to subscribe!';
     } catch (e) {}
     throw new Error(errorMsg);
   }

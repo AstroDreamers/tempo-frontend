@@ -16,6 +16,7 @@ import PollutantBreakdown from "../features/dashboardV2/PollutantBreakdown";
 import CurrentAqiCard from "../features/dashboardV2/CurrentAqiCard";
 import AiInsight from "../features/dashboardV2/AiInsight";
 import MapView from "../components/map/MapView";
+import LocationSearchBar from "../components/search/LocationSearchBar";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   
   // Ref for map section
   const mapRef = React.useRef(null);
+  const mapContainerRef = React.useRef(null);
   
   // Auto-load location if passed from navigation
   useEffect(() => {
@@ -342,9 +344,17 @@ export default function DashboardPage() {
     }
   };
 
+  // Keep subscription status in sync when selected location changes
+  useEffect(() => {
+    if (selectedLocation && selectedLocation.id) {
+      checkSubscriptionStatus(selectedLocation.id);
+    }
+  }, [selectedLocation]);
+
   const scrollToMap = () => {
-    if (mapRef.current) {
-      mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const el = mapContainerRef.current || mapRef.current;
+    if (el && el.scrollIntoView) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -374,21 +384,90 @@ export default function DashboardPage() {
           </div>
           
           {/* Map */}
-          <div ref={mapRef} className="w-full mt-8 bg-white border border-blue-200 rounded-xl overflow-hidden" style={{ height: '500px' }}>
+          <div ref={mapContainerRef} className="w-full mt-8 bg-white border border-blue-200 rounded-xl overflow-hidden" style={{ height: '500px', position: 'relative' }}>
+            {/* Search bar in top center for welcome map */}
+            <div className="absolute z-[1200] top-12 left-1/2 -translate-x-1/2 w-full flex justify-center pointer-events-none">
+              <div className="pointer-events-auto">
+                <LocationSearchBar
+                  locations={locations}
+                  onSearch={loc => {
+                    if (loc?.coordinates) {
+                      mapRef.current?.flyTo([
+                        loc.coordinates.latitude || loc.coordinates[1],
+                        loc.coordinates.longitude || loc.coordinates[0]
+                      ], 12, { animate: true, duration: 1.5 });
+                    }
+                    setSelectedLocation(loc);
+                    setHasUserSelectedLocation(true);
+                  }}
+                  onSelect={loc => {
+                    setSelectedLocation(loc);
+                    setHasUserSelectedLocation(true);
+                  }}
+                />
+              </div>
+            </div>
             <MapView 
               locations={locations || []}
               onMarkerClick={handleLocationClick}
               center={[-72.9726, 43.6106]}
+              mapRef={mapRef}
             />
           </div>
         </div>
-      </div>
+        ) : (
+          <>
 
-          {/* Split row: equal depth */}
+      {/* Split row: equal depth */}
           <section className="grid grid-cols-12 gap-5" style={{ gridAutoRows: '1fr' }}>
             {/* LEFT: AQI + PollutantBreakdown + Insight + Map stacked */}
             <div className="col-span-7">
               <div className="grid grid-rows-[auto_auto_auto_minmax(0,1fr)] gap-5 min-h-[720px]">
+                {/* Location Name */}
+
+                  {/* Location Name - Enhanced UI */}
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl shadow bg-gradient-to-r from-blue-50 via-white to-blue-100 border border-blue-200">
+                      <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-7.333 8-13a8 8 0 10-16 0c0 5.667 8 13 8 13z" />
+                        </svg>
+                      </span>
+                      <span className="text-2xl font-bold text-blue-700 truncate max-w-[320px]" title={selectedLocation?.locality || selectedLocation?.name || "Location"}>
+                        {selectedLocation?.locality || selectedLocation?.name || "Location"}
+                      </span>
+                    </div>
+
+                    <div className="ml-4">
+                      <button
+                        onClick={async () => {
+                          const token = localStorage.getItem('token');
+                          if (!token) {
+                            navigate('/login');
+                            return;
+                          }
+                          if (isSubscribed) {
+                            await handleUnsubscribe(selectedLocation?.id);
+                          } else {
+                            await handleSubscribe();
+                          }
+                        }}
+                        disabled={subscribing || (selectedLocation && unsubscribing[selectedLocation.id])}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${isSubscribed ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                        title={isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+                      >
+                        { (subscribing && !isSubscribed) || (selectedLocation && unsubscribing[selectedLocation.id]) ? (
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z" /></svg>
+                        ) : isSubscribed ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                        ) }
+                        <span className="text-sm">{isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
+                      </button>
+                    </div>
+                  </div>
                 {/* Overall AQI Card */}
                 <CurrentAqiCard aqi={currentAqi.value} />
                 
@@ -398,12 +477,35 @@ export default function DashboardPage() {
                 {/* AI Insight */}
                 <AiInsight insight={aiInsight} loading={aiLoading} />
                 
-                {/* Map */}
-                <div className="min-h-0 bg-white border border-blue-200 rounded-xl overflow-hidden">
+                {/* Map with Search Bar */}
+                <div className="relative min-h-0 bg-white border border-blue-200 rounded-xl overflow-hidden">
+                  {/* Search bar in top center, styled like MapPage */}
+                  <div className="absolute z-[1200] top-14 left-1/2 -translate-x-1/2 w-full flex justify-end pr-16 pointer-events-none">
+                    <div className="pointer-events-auto">
+                      <LocationSearchBar
+                        locations={locations}
+                        onSearch={loc => {
+                          if (loc?.coordinates) {
+                            mapRef.current?.flyTo([
+                              loc.coordinates.latitude || loc.coordinates[1],
+                              loc.coordinates.longitude || loc.coordinates[0]
+                            ], 12, { animate: true, duration: 1.5 });
+                          }
+                          setSelectedLocation(loc);
+                          setHasUserSelectedLocation(true);
+                        }}
+                        onSelect={loc => {
+                          setSelectedLocation(loc);
+                          setHasUserSelectedLocation(true);
+                        }}
+                      />
+                    </div>
+                  </div>
                   <MapView 
                     locations={locations || []}
                     onMarkerClick={handleLocationClick}
                     center={selectedLocation?.coordinates || [-72.9726, 43.6106]}
+                    mapRef={mapRef}
                   />
                 </div>
               </div>
