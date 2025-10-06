@@ -8,6 +8,8 @@ import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import VerifyPage from "./pages/VerifyPage";
+import SubscriptionsPage from "./pages/SubscriptionsPage";
+import GettingStartedPage from "./pages/GettingStartedPage";
 import Header from "./components/Header";
 import AlertsPage from "./pages/AlertsPage";
 import GuidePage from "./pages/GuidePage";
@@ -25,7 +27,7 @@ export default function App() {
     <Route path="/map" element={<MapPage />} />
     <Route path="/alerts" element={<AlertsPage />} />
     <Route path="/subscriptions" element={<SubscriptionsPage />} />
-    <Route path="/getting-started" element={<GettingStartedPage />} />
+    <Route path="/" element={<GettingStartedPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignupPage />} />
     <Route path="/verify" element={<VerifyPage />} />
